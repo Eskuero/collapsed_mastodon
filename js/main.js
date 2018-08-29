@@ -191,7 +191,7 @@ function checkclick(event) {
 			break;
 		// Decide what we do with the dropdown
 		case "fa fa-fw fa-ellipsis-v":
-			wait(".dropdown-menu.bottom");
+			wait(".dropdown-menu");
 			break;
 	}
 }
@@ -202,14 +202,14 @@ async function wait(element) {
 		await new Promise(r => setTimeout(r, 100));
 	}
 	switch (element) {
-		case ".dropdown-menu.bottom":
+		case ".dropdown-menu":
 			// If we are targetting the dropdown menu we put it on the proper place by using the position of the header icon menu. We also hide the arrow as it looks very ugly
 			info = iconm.getBoundingClientRect();
 			y = info.y + "px";
 			x = (info.x + info.width)  + "px";
-			document.getElementsByClassName("dropdown-menu bottom")[0].style.top = y;
-			document.getElementsByClassName("dropdown-menu bottom")[0].style.left = x;
-			document.getElementsByClassName("dropdown-menu__arrow bottom")[0].style.display = "none";
+			document.getElementsByClassName("dropdown-menu")[0].style.top = y;
+			document.getElementsByClassName("dropdown-menu")[0].style.left = x;
+			document.getElementsByClassName("dropdown-menu__arrow")[0].style.display = "none";
 			break;
 		case ".reply-indicator__cancel":
 			// Hook the cancel indicator to collapse the composer
