@@ -132,7 +132,6 @@ function checkkeyup(event) {
 				textarea.focus();
 				event.target.scrollIntoView();
 			}
-			console.log(event.target);
 			break;
 		case 77:
 			clase = event.target.className;
