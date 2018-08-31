@@ -8,9 +8,9 @@ chrome.storage.local.get("domains", function(data) {
 	// Create an array out of the original list splitting by commas
 	array = domains.replace(/ /g, "").split(",");
 	for (i = 0; i < array.length; i++) {
-		// If we found a match we wait for DOM to be fully loaded and then do things
+		// If we found a match we wait for the drawer header to appear, as we do most of the work there.
 		if (document.location.toString().includes(array[i])) {
-			document.addEventListener('DOMContentLoaded', work());
+			wait(".drawer__header");
 			break;
 		}
 	}
@@ -203,6 +203,10 @@ async function wait(element) {
 		await new Promise(r => setTimeout(r, 100));
 	}
 	switch (element) {
+		case ".drawer__header":
+			// The header is here so it's time to get work done
+			work();
+			break;
 		case ".dropdown-menu":
 			// If we are targetting the dropdown menu we put it on the proper place by using the position of the header icon menu. We also hide the arrow as it looks very ugly
 			info = iconm.getBoundingClientRect();
