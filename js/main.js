@@ -154,10 +154,11 @@ function checkclick(event) {
 	switch (target.className) {
 		// FIXME: On Chrome the event target is the <i> but on Firefox is the parent button, so we go down
 		case "status__action-bar-button icon-button":
-			target = target.firstChild;
-			if (!target.className.includes("fa fa-fw fa-reply")) {
+		case "icon-button":
+			if (!target.firstChild.className.includes("fa fa-fw fa-reply")) {
 				break;
 			}
+			target = target.firstChild;
 		// END of FIXME
 		// If we clicked on the reply button we append the composer below the target toot
 		case "fa fa-fw fa-reply":
