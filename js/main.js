@@ -132,7 +132,7 @@ function checkkeyup(event) {
 				wait(".reply-indicator__cancel");
 				formw.style.display = "block";
 				textarea.focus();
-				event.target.scrollIntoView();
+				wait(".reply-indicator__content", event.target);
 			}
 			break;
 		case 77:
@@ -172,7 +172,8 @@ function checkclick(event) {
 				// We hook the cancel button to collapse the composer
 				wait(".reply-indicator__cancel");
 				grandpa.appendChild(formw);
-				grandpa.scrollIntoView();
+				// Scroll into the element if required
+				wait(".reply-indicator__content", grandpa);
 			// If we clicked on the same status we make the form hide
 			} else {
 				containerw.appendChild(formw);
@@ -198,7 +199,7 @@ function checkclick(event) {
 	}
 }
 
-async function wait(element) {
+async function wait(element, arg1 = null) {
 	// FIXME: Probably a resource hog, we check every 0,1s if the element is finally alive
 	while (!document.querySelector(element)) {
 		await new Promise(r => setTimeout(r, 100));
@@ -236,6 +237,26 @@ async function wait(element) {
 				formd.style.height = (document.getElementById("mastodon").clientHeight - formd.getBoundingClientRect().top) / 1.5 + "px";
 			}
 			break;
+		case ".reply-indicator__content":
+			// We append the composer on the status but the actual article tag is it's grandpa
+			article = arg1.parentElement.parentElement;
+			// The scrollable element is top of top, and no element is displayed beyond frontier
+			scrollable = article.parentElement.parentElement;
+			frontier = scrollable.clientHeight;
+			scrolled = scrollable.scrollTop;
+			// Size and absolute position of the article inside the item-list
+			length = article.clientHeight;
+			fall = article.offsetTop;
+			// Relative position of the article to the scrollable viewport
+			distance = fall - scrolled;
+			// If the article is not fully visible we scroll the bare minimum to entirely display it
+			if (distance + length > frontier) {
+				destiny = scrolled + (distance + length - frontier);
+				scrollable.scrollTop = destiny;
+			// If we are already at the top we move just a little to prevent streaming from pushing timeline
+			} else if (scrolled == 0) {
+				scrollable.scrollTop = 1;
+			}
 	}
 }
 
