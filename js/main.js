@@ -227,10 +227,15 @@ async function wait(element) {
 }
 
 function scrollIfNeeded(status) {
-	// We append the composer on the status but the actual article tag is it's grandpa
-	article = status.parentElement.parentElement;
-	// The scrollable element is top of top, and no element is displayed beyond frontier
-	scrollable = article.parentElement.parentElement;
+	// Iteratively go up until we find the scrollable, two elements below is the article
+	scrollable = status;
+	while (!scrollable.className.includes("scrollable")) {
+		if (scrollable.parentElement.parentElement.className.includes("scrollable")) {
+			article = scrollable;
+		}
+		scrollable = scrollable.parentElement;
+	}
+	// Viewport and offset of the scrollable
 	frontier = scrollable.clientHeight;
 	scrolled = scrollable.scrollTop;
 	// Size and absolute position of the article inside the item-list
