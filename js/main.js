@@ -21,7 +21,7 @@ function work() {
 	// Create the base stylesheet
 	sheet = document.createElement('style');
 	// Print the classes inside the element
-	style = document.createTextNode('.drawer__tab { padding: 0px; } .drawer__tab > .fa-fw { padding: 15px 9px 13px; } .drawer__inner { display: none; position: relative; overflow: visible; } .search { position: absolute; width: 300px; border: 1px solid #1f232b; } .composerdiv { width: 400px; } .composerdiv, .searchdiv { display: none; position: absolute; background: #313543; border: 1px solid #1f232b; } .drawer__header { flex-direction: column; } .drawer { width: auto; min-width: 0; padding-left: 0px !important; flex: 0 0 auto; } .drawer__tab:hover { cursor: pointer; } .search-results__section { float: left;}');
+	style = document.createTextNode('.drawer__tab { padding: 0px; } .drawer__tab > .fa-fw { padding: 15px 9px 13px; } .drawer__inner { display: none; position: relative; overflow: visible; } .search { position: absolute; width: 300px; border: 1px solid #1f232b; } .composerdiv { width: 400px; } .composerdiv, .searchdiv { display: none; position: absolute; background: #313543; border: 1px solid #1f232b; } .drawer__header { flex-direction: column; } .drawer { width: auto; min-width: 0; padding-left: 0px !important; flex: 0 0 auto; } .drawer__tab:hover { cursor: pointer; } .search-results__section { float: left;} .reply-indicator { display: none; }');
 	sheet.appendChild(style);
 	// Add the the stylesheet to the head of the webpage
 	document.getElementsByTagName('head')[0].appendChild(sheet);
@@ -128,11 +128,9 @@ function checkkeyup(event) {
 			if (clase.includes("status__wrapper") || (clase == "focusable"
 				&& event.target.firstChild.className == "detailed-status")) {
 				event.target.appendChild(formw);
-				// We hook the cancel button to collapse the composer
-				wait(".reply-indicator__cancel");
 				formw.style.display = "block";
 				textarea.focus();
-				wait(".reply-indicator__content", event.target);
+				scrollIfNeeded(event.target);
 			}
 			break;
 		case 77:
@@ -169,11 +167,9 @@ function checkclick(event) {
 			// If the parent element is somewhere else we move the form to that status
 			if (formw.parentElement != grandpa) {
 				containerw.style.display = "none";
-				// We hook the cancel button to collapse the composer
-				wait(".reply-indicator__cancel");
 				grandpa.appendChild(formw);
 				// Scroll into the element if required
-				wait(".reply-indicator__content", grandpa);
+				scrollIfNeeded(grandpa);
 			// If we clicked on the same status we make the form hide
 			} else {
 				containerw.appendChild(formw);
@@ -199,7 +195,7 @@ function checkclick(event) {
 	}
 }
 
-async function wait(element, arg1 = null) {
+async function wait(element) {
 	// FIXME: Probably a resource hog, we check every 0,1s if the element is finally alive
 	while (!document.querySelector(element)) {
 		await new Promise(r => setTimeout(r, 100));
@@ -218,12 +214,6 @@ async function wait(element, arg1 = null) {
 			document.getElementsByClassName("dropdown-menu")[0].style.left = x;
 			document.getElementsByClassName("dropdown-menu__arrow")[0].style.display = "none";
 			break;
-		case ".reply-indicator__cancel":
-			// Hook the cancel indicator to collapse the composer
-			document.getElementsByClassName("reply-indicator__cancel")[0].addEventListener("click", function() {
-				containerw.appendChild(formw);
-			});
-			break;
 		case ".search-results__section":
 			sections = document.getElementsByClassName("search-results__section");
 			// We assume it's pleroma's mastodon front end if the second results columns contains toots rather than hashtags
@@ -237,26 +227,28 @@ async function wait(element, arg1 = null) {
 				formd.style.height = (document.getElementById("mastodon").clientHeight - formd.getBoundingClientRect().top) / 1.5 + "px";
 			}
 			break;
-		case ".reply-indicator__content":
-			// We append the composer on the status but the actual article tag is it's grandpa
-			article = arg1.parentElement.parentElement;
-			// The scrollable element is top of top, and no element is displayed beyond frontier
-			scrollable = article.parentElement.parentElement;
-			frontier = scrollable.clientHeight;
-			scrolled = scrollable.scrollTop;
-			// Size and absolute position of the article inside the item-list
-			length = article.clientHeight;
-			fall = article.offsetTop;
-			// Relative position of the article to the scrollable viewport
-			distance = fall - scrolled;
-			// If the article is not fully visible we scroll the bare minimum to entirely display it
-			if (distance + length > frontier) {
-				destiny = scrolled + (distance + length - frontier);
-				scrollable.scrollTop = destiny;
-			// If we are already at the top we move just a little to prevent streaming from pushing timeline
-			} else if (scrolled == 0) {
-				scrollable.scrollTop = 1;
-			}
+	}
+}
+
+function scrollIfNeeded(status) {
+	// We append the composer on the status but the actual article tag is it's grandpa
+	article = status.parentElement.parentElement;
+	// The scrollable element is top of top, and no element is displayed beyond frontier
+	scrollable = article.parentElement.parentElement;
+	frontier = scrollable.clientHeight;
+	scrolled = scrollable.scrollTop;
+	// Size and absolute position of the article inside the item-list
+	length = article.clientHeight;
+	fall = article.offsetTop;
+	// Relative position of the article to the scrollable viewport
+	distance = fall - scrolled;
+	// If the article is not fully visible we scroll the bare minimum to entirely display it
+	if (distance + length > frontier) {
+		destiny = scrolled + (distance + length - frontier);
+		scrollable.scrollTop = destiny;
+	// If we are already at the top we move just a little to prevent streaming from pushing timeline
+	} else if (scrolled == 0) {
+		scrollable.scrollTop = 1;
 	}
 }
 
