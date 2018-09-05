@@ -150,20 +150,16 @@ function checkkeyup(event) {
 function checkclick(event) {
 	target = event.target;
 	switch (target.className) {
-		// FIXME: On Chrome the event target is the <i> but on Firefox is the parent button, so we go down
+		// If we clicked on the reply button we append the composer below the target toot
 		case "status__action-bar-button icon-button":
 		case "icon-button":
-			if (!target.firstChild.className.includes("fa fa-fw fa-reply")) {
-				break;
-			}
-			target = target.firstChild;
-		// END of FIXME
-		// If we clicked on the reply button we append the composer below the target toot
 		case "fa fa-fw fa-reply":
 		case "fa fa-fw fa-reply-all":
-			// FIXME: Incredible long recursive element retrieval. Ugly but necessary
-			grandpa = target.parentElement.parentElement.parentElement.parentElement.parentElement;
-			// END of FIXME
+			// Iteratively go up until we find the status_wrapper and then append it
+			grandpa = target;
+			while (!grandpa.className.includes("focusable")) {
+				grandpa = grandpa.parentElement;
+			}
 			// If the parent element is somewhere else we move the form to that status
 			if (formw.parentElement != grandpa) {
 				containerw.style.display = "none";
