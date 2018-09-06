@@ -92,6 +92,7 @@ function checkkeydown(event) {
 		case 13:
 			// If we use the Ctrl+Enter key combo, we are focused on the composer textarea and the send button is not disabled we expect to send the toot and pull back to its container
 			if (event.ctrlKey && document.activeElement == textarea && !send.disabled) {
+				undoMinimalScroll(send);
 				containerw.appendChild(formw);
 				containerw.style.display = "none";
 			}
@@ -163,6 +164,7 @@ function checkclick(event) {
 			while (!grandpa.className.includes("focusable")) {
 				grandpa = grandpa.parentElement;
 			}
+			undoMinimalScroll(grandpa);
 			// If the parent element is somewhere else we move the form to that status
 			if (formw.parentElement != grandpa) {
 				containerw.style.display = "none";
@@ -176,6 +178,7 @@ function checkclick(event) {
 			break;
 		// Everytime we press the TOOT! button we collapse the composer back to the main container
 		case "button button--block":
+			undoMinimalScroll(target);
 			containerw.appendChild(formw);
 			containerw.style.display = "none";
 			break;
@@ -229,6 +232,20 @@ async function wait(element) {
 	}
 }
 
+function undoMinimalScroll(scrollable) {
+	// Ignore if the composer is on the container
+	if (formw.parentElement != containerw) {
+		// Get the closer scrollable element
+		while (!scrollable.className.includes("scrollable")) {
+			scrollable = scrollable.parentElement;
+		}
+		// Move only if the amount scrolled is smaller (Chromium reports decimal values even if we hardcoded 
+		if (scrollable.scrollTop <= 1) {
+			scrollable.scrollTop = 0;
+		}
+	}
+}
+
 function scrollIfNeeded(status) {
 	// Iteratively go up until we find the scrollable, two elements below is the article
 	scrollable = status;
@@ -268,6 +285,11 @@ function opencontainer(container, icon) {
 		container.style.display = "block";
 		switch (container.className) {
 			case "composerdiv":
+				// Always scroll back the columns in case is needed.
+				scrollables = document.getElementsByClassName("scrollable");
+				for (i = 0; i < scrollables.length; i++) {
+					undoMinimalScroll(scrollables[i]);
+				}
 				// If the target is the composer we append the textarea back
 				container.appendChild(formw);
 				// If we are opening it we always close previous mentions
