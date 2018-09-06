@@ -21,8 +21,19 @@ function work() {
 	// Create the base stylesheet
 	sheet = document.createElement('style');
 	// Print the classes inside the element
-	style = document.createTextNode('.drawer__tab { padding: 0px; } .drawer__tab > .fa-fw { padding: 15px 9px 13px; } .drawer .drawer__inner { display: none; } .drawer__inner.darker { display:none; position: relative; overflow: visible; } .searchdiv .search { position: absolute; width: 300px; border: 1px solid #1f232b; } .composerdiv { width: 400px; } .composerdiv, .searchdiv { display: none; position: absolute; background: #313543; border: 1px solid #1f232b; } .drawer__header { flex-direction: column; } .drawer { width: auto; min-width: 0; padding-left: 0px !important; flex: 0 0 auto; } .drawer__tab:hover { cursor: pointer; } .search-results__section { float: left;} .reply-indicator { display: none; }');
+	style = document.createTextNode('.drawer__tab { padding: 0px; } .drawer__tab > .fa-fw { padding: 15px 9px 13px; } .drawer .drawer__inner { display: none; } .drawer__inner.darker { display:none; position: relative; overflow: visible; } .searchdiv .search { position: absolute; width: 300px; border: 1px solid #1f232b; } .composerdiv { width: 400px; } .composerdiv, .searchdiv { display: none; position: absolute; background: #313543; border: 1px solid #1f232b; } .drawer__header { flex-direction: column; } .drawer { width: auto; min-width: 0; padding-left: 0px !important; flex: 0 0 auto; } .drawer__tab:hover { cursor: pointer; } .search-results__section { float: left;} .reply-indicator { display: none; } .column { flex: 1 1 auto }');
 	sheet.appendChild(style);
+	// Retrieve current setting of the autoincreasing timelines
+	chrome.storage.local.get("bigtl", function(data) {
+		if (data.bigtl) {
+			enable = data.bigtl;
+		}
+		// Only disable it if we especifically changed the preference
+		if (enable == "false") {
+			disablebigtl = document.createTextNode('.column { flex: 0 0 auto }');
+			sheet.appendChild(disablebigtl);
+		}
+	});
 	// Add the the stylesheet to the head of the webpage
 	document.getElementsByTagName('head')[0].appendChild(sheet);
 
