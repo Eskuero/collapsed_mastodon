@@ -153,6 +153,9 @@ function checkclick(event) {
 		// If we clicked on the reply button we append the composer below the target toot
 		case "status__action-bar-button icon-button":
 		case "icon-button":
+			if (!target.firstChild.className.includes("fa fa-fw fa-reply")) {
+				break;
+			}
 		case "fa fa-fw fa-reply":
 		case "fa fa-fw fa-reply-all":
 			// Iteratively go up until we find the status_wrapper and then append it
