@@ -67,7 +67,7 @@ function work() {
 	write.className = "drawer__tab";
 	// Insert the write icon inside the new entry
 	iconw = document.createElement('i');
-	iconw.className = "fa fa-fw fa-pencil";
+	iconw.className = "fa fa-fw fa-pencil fa-pencil-alt";
 	write.appendChild(iconw);
 	header.appendChild(write);
 	// Create the composer container
