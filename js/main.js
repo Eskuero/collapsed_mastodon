@@ -198,7 +198,7 @@ function checkclick(event) {
 			opencontainer(containers, icons);
 			break;
 		// Decide if we should show or hide the main composer based on it's corrent status
-		case "fa fa-fw fa-pencil":
+		case "fa fa-fw fa-pencil fa-pencil-alt":
 			opencontainer(containerw, iconw);
 			break;
 		// Decide what we do with the dropdown
