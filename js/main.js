@@ -85,6 +85,7 @@ function work() {
 
 	// Retrieve all the clicks to understand where to act
 	document.body.addEventListener('click', function(event) { checkclick(event); });
+	document.body.addEventListener('mousedown', function(event) { checkmousedown(event); });
 	// Listen to certain key combinations to fix interactions
 	document.body.addEventListener('keyup', function(event) { checkkeyup(event); });
 	document.body.addEventListener('keydown', function(event) { checkkeydown(event); });
@@ -96,6 +97,13 @@ function checkkeydown(event) {
 		case 82:
 			clase = event.target.className;
 			if (clase.includes("status__wrapper") || (clase == "focusable" && event.target.firstChild.className == "detailed-status")) {
+				// If reply indicator exists we should close the previous mention to avoid nags
+				if (document.querySelector(".reply-indicator")) {
+					document.getElementsByClassName("reply-indicator__cancel")[0].firstChild.click();
+				// If it does not we only have to clean the textarea
+				} else {
+					textarea.value = "";
+				}
 				formw.style.display = "none";
 			}
 			break;
@@ -159,6 +167,25 @@ function checkkeyup(event) {
 	}
 }
 
+function checkmousedown(event) {
+	target = event.target;
+	switch (target.className) {
+		case "status__action-bar-button icon-button":
+		case "icon-button":
+			if (!target.firstChild.className.includes("fa fa-fw fa-reply")) {
+				break;
+			}
+		case "fa fa-fw fa-reply":
+		case "fa fa-fw fa-reply-all":
+			// If the reply indicator exists that means we must properly close the previous mention to avoid nagging the user about it
+			if (document.querySelector(".reply-indicator")) {
+				document.getElementsByClassName("reply-indicator__cancel")[0].firstChild.click();
+			// If it does not we only have to clean the textarea
+			} else {
+				textarea.value = "";
+			}
+	}
+}
 function checkclick(event) {
 	target = event.target;
 	switch (target.className) {
