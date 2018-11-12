@@ -264,7 +264,7 @@ async function wait(element) {
 				formd.style.overflowY = "scroll";
 				containers.style.backgroundColor = "inherit";
 				// Set box height so body doesn't extend for ages
-				formd.style.height = (document.getElementById("mastodon").clientHeight - formd.getBoundingClientRect().top) / 1.5 + "px";
+				formd.style.height = (document.getElementById("mastodon").clientHeight - formd.getBoundingClientRect().top) / 1.2 + "px";
 			}
 			break;
 	}
