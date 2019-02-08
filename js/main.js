@@ -21,7 +21,7 @@ function work() {
 	// Create the base stylesheet
 	sheet = document.createElement('style');
 	// Print the classes inside the element
-	style = document.createTextNode('.drawer__tab { padding: 0px; } .drawer__tab > .fa-fw { padding: 15px 9px 13px; } .drawer .drawer__inner { display: none; } .drawer__inner.darker { display:none; position: relative; overflow: visible; } .searchdiv .search { position: absolute; width: 300px; } .composerdiv { width: 400px; } .composerdiv, .searchdiv { display: none; position: absolute; background: inherit; } .drawer__header { flex-direction: column; } .drawer { width: auto; min-width: 0; padding-left: 0px !important; flex: 0 0 auto; } .drawer__tab:hover { cursor: pointer; } .search-results__section { float: left;} .reply-indicator { display: none; }');
+	style = document.createTextNode('.drawer__tab { padding: 0; } .drawer__tab > .fa-fw { padding: 0.9em 0.6em 0.8em; } .drawer .drawer__inner { display: none; } .search-results { display: none; overflow: scroll; position: relative; flex-wrap: wrap } .fa fa-times-circle active { padding: 0.3em 0.6em } .search { position: absolute; width: 25em; } .composerdiv { width: 30em; } .composerdiv, .searchdiv { display: none; position: absolute; background: inherit; } .drawer__header { flex-direction: column; } .drawer { width: auto; min-width: 0; padding-left: 0px !important; flex: 0 0 auto; } .drawer__tab:hover { cursor: pointer; } .reply-indicator { display: none; } .search-results__header { flex: 0 1 100% } .search-results__section { width: 50% }');
 	sheet.appendChild(style);
 	// Retrieve current setting of the autoincreasing timelines
 	chrome.storage.local.get("bigtl", function(data) {
@@ -43,7 +43,7 @@ function work() {
 	header = document.getElementsByClassName("drawer__header")[0];
 	textarea = document.getElementsByClassName("autosuggest-textarea__textarea")[0];
 	forms = document.getElementsByClassName("search")[0];
-	formd = document.getElementsByClassName("drawer__inner darker")[0];
+	formd = document.getElementsByClassName("search-results")[0];
 	inputs = document.getElementsByClassName("search__input")[0];
 	formw = document.getElementsByClassName("compose-form")[0];
 	iconm = document.getElementsByClassName("fa fa-fw fa-ellipsis-v")[0];
@@ -103,13 +103,13 @@ function checkkeydown(event) {
 			}
 			// If we are focused on the search input, we make preparations to display results
 			if (document.activeElement == inputs) {
-				formd.style.display = "block";
-				// We increase the search box size to almost fill the top
-				forms.style.width = "99%";
+				formd.style.display = "flex";
+				// We increase the search box size to fill the top
+				forms.style.width = "100%";
 				// We hook the close button to hide results, bring search box to original size and focus on input
 				document.getElementsByClassName("fa fa-times-circle active")[0].addEventListener('click', function() { 
 					formd.style.display = "none";
-					forms.style.width = "300px";
+					forms.style.width = "25em";
 					inputs.focus();
 				});
 			}
@@ -230,7 +230,7 @@ async function wait(element) {
 			break;
 		case ".confirmation-modal__action-bar":
 			document.getElementsByClassName("confirmation-modal__action-bar")[0].children[1].click();
-			break
+			break;
 	}
 }
 
