@@ -21,7 +21,7 @@ function work() {
 	// Create the base stylesheet
 	sheet = document.createElement('style');
 	// Print the classes inside the element
-	style = document.createTextNode('.drawer__tab { padding: 0px; } .drawer__tab > .fa-fw { padding: 15px 9px 13px; } .drawer .drawer__inner { display: none; } .drawer__inner.darker { display:none; position: relative; overflow: visible; } .searchdiv .search { position: absolute; width: 300px; } .composerdiv { width: 400px; } .composerdiv, .searchdiv { display: none; position: absolute; background: inherit; } .drawer__header { flex-direction: column; } .drawer { width: auto; min-width: 0; padding-left: 0px !important; flex: 0 0 auto; } .drawer__tab:hover { cursor: pointer; } .search-results__section { float: left;} .reply-indicator { display: none; } .column { flex: 1 1 auto }');
+	style = document.createTextNode('.drawer__tab { padding: 0px; } .drawer__tab > .fa-fw { padding: 15px 9px 13px; } .drawer .drawer__inner { display: none; } .drawer__inner.darker { display:none; position: relative; overflow: visible; } .searchdiv .search { position: absolute; width: 300px; } .composerdiv { width: 400px; } .composerdiv, .searchdiv { display: none; position: absolute; background: inherit; } .drawer__header { flex-direction: column; } .drawer { width: auto; min-width: 0; padding-left: 0px !important; flex: 0 0 auto; } .drawer__tab:hover { cursor: pointer; } .search-results__section { float: left;} .reply-indicator { display: none; } .column { flex: 1 1 auto } .modal-root { visibility: hidden }');
 	sheet.appendChild(style);
 	// Retrieve current setting of the autoincreasing timelines
 	chrome.storage.local.get("bigtl", function(data) {
@@ -85,7 +85,6 @@ function work() {
 
 	// Retrieve all the clicks to understand where to act
 	document.body.addEventListener('click', function(event) { checkclick(event); });
-	document.body.addEventListener('mousedown', function(event) { checkmousedown(event); });
 	// Listen to certain key combinations to fix interactions
 	document.body.addEventListener('keyup', function(event) { checkkeyup(event); });
 	document.body.addEventListener('keydown', function(event) { checkkeydown(event); });
@@ -93,21 +92,6 @@ function work() {
 
 function checkkeydown(event) {
 	switch (event.keyCode) {
-		// FIXME: On keycode 82 (Reply shortcut) the composer box is spawned but doesn't move on another keypress if it's visible. For now we hide on keydown, before moving and displaying again on keyup.
-		case 82:
-			clase = event.target.className;
-			if (clase.includes("status__wrapper") || (clase == "focusable" && event.target.firstChild.className == "detailed-status")) {
-				// If reply indicator exists we should close the previous mention to avoid nags
-				if (document.querySelector(".reply-indicator")) {
-					document.getElementsByClassName("reply-indicator__cancel")[0].firstChild.click();
-				// If it does not we only have to clean the textarea
-				} else {
-					textarea.value = "";
-				}
-				formw.style.display = "none";
-			}
-			break;
-		// END of FIXME
 		case 13:
 			// If we use the Ctrl+Enter key combo, we are focused on the composer textarea and the send button is not disabled we expect to send the toot and pull back to its container
 			if (event.ctrlKey && document.activeElement == textarea && !send.disabled) {
@@ -137,16 +121,18 @@ function checkkeyup(event) {
 	switch (event.keyCode) {
 		case 78:
 			// We pressed the N (compose shortcut). If we are not focusing on search and the composer is inside it's container but hidden we show it
-			if (document.activeElement.tagName != "INPUT" && containerw.style.display != 'block'
-				&& formw.parentElement == containerw) {
+			if (document.activeElement.tagName != "INPUT" && containerw.style.display != 'block' && formw.parentElement == containerw) {
 				opencontainer(containerw, iconw);
 			}
 			break;
 		case 82:
 			clase = event.target.className;
 			// We pressed the R (reply shorcut). If the targetted element is a status we append the composer below that and scroll to prevent streaming timelines from overruning our focus
-			if (clase.includes("status__wrapper") || (clase == "focusable"
-				&& event.target.firstChild.className == "detailed-status")) {
+			if (clase.includes("status__wrapper") || (clase == "focusable" && event.target.firstChild.className == "detailed-status")) {
+				// Also if textarea is not empty (due composing or replying) we must blindly press on the overwrite button
+				if (document.querySelector(".reply-indicator") || textarea.value != "") {
+					wait(".confirmation-modal__action-bar");
+				}
 				event.target.appendChild(formw);
 				formw.style.display = "block";
 				textarea.focus();
@@ -170,25 +156,6 @@ function checkkeyup(event) {
 	}
 }
 
-function checkmousedown(event) {
-	target = event.target;
-	switch (target.className) {
-		case "status__action-bar-button icon-button":
-		case "icon-button":
-			if (!target.firstChild.className.includes("fa fa-fw fa-reply")) {
-				break;
-			}
-		case "fa fa-fw fa-reply":
-		case "fa fa-fw fa-reply-all":
-			// If the reply indicator exists that means we must properly close the previous mention to avoid nagging the user about it
-			if (document.querySelector(".reply-indicator")) {
-				document.getElementsByClassName("reply-indicator__cancel")[0].firstChild.click();
-			// If it does not we only have to clean the textarea
-			} else {
-				textarea.value = "";
-			}
-	}
-}
 function checkclick(event) {
 	target = event.target;
 	switch (target.className) {
@@ -215,6 +182,10 @@ function checkclick(event) {
 			// If we clicked on the same status we make the form hide
 			} else {
 				containerw.appendChild(formw);
+			}
+			// Also if textarea is not empty (due composing or replying) we must blindly press on the overwrite button
+			if (document.querySelector(".reply-indicator") || textarea.value != "") {
+				wait(".confirmation-modal__action-bar");
 			}
 			break;
 		// Everytime we press the TOOT! button we collapse the composer back to the main container
@@ -270,6 +241,9 @@ async function wait(element) {
 				formd.style.height = (document.getElementById("mastodon").clientHeight - formd.getBoundingClientRect().top) / 1.2 + "px";
 			}
 			break;
+		case ".confirmation-modal__action-bar":
+			document.getElementsByClassName("confirmation-modal__action-bar")[0].children[1].click();
+			break
 	}
 }
 
