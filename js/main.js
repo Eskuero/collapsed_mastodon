@@ -162,6 +162,9 @@ function checkkeyup(event) {
 			break;
 		case 27:
 			// We pressed Esc. This way we have a quick way of navigating the page
+			undoMinimalScroll(send);
+			containerw.appendChild(formw);
+			containerw.style.display = "none";
 			document.body.focus();
 			break;
 	}
