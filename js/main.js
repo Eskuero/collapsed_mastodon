@@ -48,6 +48,7 @@ function work() {
 	formw = document.getElementsByClassName("compose-form")[0];
 	iconm = document.getElementsByClassName("fa fa-fw fa-ellipsis-v")[0];
 	send = document.getElementsByClassName("button button--block")[0];
+	user = document.getElementsByClassName("navigation-bar__profile-account")[0].parentElement.href;
 
 	// Create a new element on the menu for the search box
 	search = document.createElement('a');
@@ -120,7 +121,11 @@ function checkkeydown(event) {
 			// We pressed the R (reply shorcut). If the targetted element is a status we append the composer below that and scroll to prevent streaming timelines from overruning our focus
 			if (clase.includes("status__wrapper") || (clase == "focusable" && destiny.firstChild.className == "detailed-status")) {
 				// Also if textarea is not empty (due composing or replying) we must wait for user interaction
-				if (document.querySelector(".reply-indicator") || textarea.value != "") {
+				writer = "";
+				if (document.querySelector(".reply-indicator__display-name")) {
+					writer = document.getElementsByClassName("reply-indicator__display-name")[0].href;
+				}
+				if ((document.querySelector(".reply-indicator") && user != writer) || textarea.value != "") {
 					wait(".confirmation-modal__action-bar");
 				} else {
 					containerw.style.display = "none";
@@ -181,7 +186,11 @@ function checkclick(event) {
 			// If the parent element is somewhere else we move the form to that status
 			if (formw.parentElement != target) {
 				destiny = target;
-				if (document.querySelector(".reply-indicator") || textarea.value != "") {
+				writer = "";
+				if (document.querySelector(".reply-indicator__display-name")) {
+					writer = document.getElementsByClassName("reply-indicator__display-name")[0].href;
+				}
+				if ((document.querySelector(".reply-indicator") && user != writer) || textarea.value != "") {
 					wait(".confirmation-modal__action-bar");
 				} else {
 					containerw.style.display = "none";
