@@ -25,6 +25,7 @@ function work() {
 	sheet.appendChild(style);
 	// Retrieve current setting of the autoincreasing timelines
 	chrome.storage.local.get("bigtl", function(data) {
+		enable = "true";
 		if (data.bigtl) {
 			enable = data.bigtl;
 		}
