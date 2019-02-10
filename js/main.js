@@ -21,7 +21,7 @@ function work() {
 	// Create the base stylesheet
 	sheet = document.createElement('style');
 	// Print the classes inside the element
-	style = document.createTextNode('.drawer__tab { padding: 0; } .drawer__tab > .fa-fw { padding: 0.9em 0.6em 0.8em; } .drawer .drawer__inner { display: none; } .search-results { display: none; overflow: scroll; position: relative; flex-wrap: wrap } .fa fa-times-circle active { padding: 0.3em 0.6em } .search { position: absolute; width: 25em; } .composerdiv { width: 30em; } .composerdiv, .searchdiv { display: none; position: absolute; background: inherit; } .drawer__header { flex-direction: column; } .drawer { width: auto; min-width: 0; padding-left: 0px !important; flex: 0 0 auto; } .drawer__tab:hover { cursor: pointer; } .reply-indicator { display: none; } .search-results__header { flex: 0 1 100% } .search-results__section { width: 50% }');
+	style = document.createTextNode('.drawer__header { flex-direction: column } .drawer__header > * { padding: 0 } .drawer__header > *:hover { cursor: pointer } .drawer__header > * > * { padding: 0.9em 0.6em 0.8em } .drawer .drawer__inner { display: none } .search-results { display: none; overflow-y: scroll; position: relative; flex-wrap: wrap } .search { position: absolute; width: 25em } .composerdiv { width: 30em } .composerdiv, .searchdiv { display: none; position: absolute; background: inherit } .drawer { width: auto; min-width: 0; padding-left: 0px !important; flex: 0 0 auto } .reply-indicator { display: none } .search-results__header { flex: 0 1 100% } .search-results__section { width: 50% }');
 	sheet.appendChild(style);
 	// Retrieve current setting of the autoincreasing timelines
 	chrome.storage.local.get("bigtl", function(data) {
