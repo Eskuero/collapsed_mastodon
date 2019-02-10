@@ -114,10 +114,28 @@ function checkkeydown(event) {
 				});
 			}
 			break;
+		case 82:
+			destiny = event.target;
+			clase = event.target.className;
+			// We pressed the R (reply shorcut). If the targetted element is a status we append the composer below that and scroll to prevent streaming timelines from overruning our focus
+			if (clase.includes("status__wrapper") || (clase == "focusable" && destiny.firstChild.className == "detailed-status")) {
+				// Also if textarea is not empty (due composing or replying) we must wait for user interaction
+				if (document.querySelector(".reply-indicator") || textarea.value != "") {
+					wait(".confirmation-modal__action-bar");
+				} else {
+					containerw.style.display = "none";
+					destiny.appendChild(formw);
+					// Scroll into the element if required
+					scrollIfNeeded(destiny);
+				}
+			}
+			break;
 	}
 }
 
 function checkkeyup(event) {
+	target = event.target;
+	clase = target.className;
 	switch (event.keyCode) {
 		case 78:
 			// We pressed the N (compose shortcut). If we are not focusing on search and the composer is inside it's container but hidden we show it
@@ -125,30 +143,18 @@ function checkkeyup(event) {
 				opencontainer(containerw, iconw);
 			}
 			break;
-		case 82:
-			clase = event.target.className;
-			// We pressed the R (reply shorcut). If the targetted element is a status we append the composer below that and scroll to prevent streaming timelines from overruning our focus
-			if (clase.includes("status__wrapper") || (clase == "focusable" && event.target.firstChild.className == "detailed-status")) {
-				// Also if textarea is not empty (due composing or replying) we must blindly press on the overwrite button
-				if (document.querySelector(".reply-indicator") || textarea.value != "") {
-					wait(".confirmation-modal__action-bar");
-				}
-				event.target.appendChild(formw);
-				formw.style.display = "block";
-				textarea.focus();
-				scrollIfNeeded(event.target);
-			}
-			break;
 		case 77:
-			clase = event.target.className;
 			// We pressed the M (mention shorcut). If the targetted element is one containing a remote user we open the composer container with it's name/s
-			if (clase.includes("status__wrapper") || clase.includes("notification-favourite") || clase.includes("notification-reblog") || (clase == "focusable" && event.target.firstChild.className == "detailed-status")) {
+			if (clase.includes("status__wrapper") || clase.includes("notification-favourite") || clase.includes("notification-reblog") || (clase == "focusable" && target.firstChild.className == "detailed-status")) {
 				opencontainer(containerw, iconw);
 			}
 			break;
 		case 27:
 			// We pressed Esc. This way we have a quick way of navigating the page
 			undoMinimalScroll(send);
+			if (document.getElementsByClassName("reply-indicator__cancel").length > 0) {
+				document.getElementsByClassName("reply-indicator__cancel")[0].firstChild.click();
+			}
 			containerw.appendChild(formw);
 			containerw.style.display = "none";
 			document.body.focus();
@@ -168,24 +174,21 @@ function checkclick(event) {
 		case "fa fa-fw fa-reply":
 		case "fa fa-fw fa-reply-all":
 			// Iteratively go up until we find the status_wrapper and then append it
-			grandpa = target;
-			while (!grandpa.className.includes("focusable")) {
-				grandpa = grandpa.parentElement;
+			while (!target.className.includes("focusable")) {
+				target = target.parentElement;
 			}
-			undoMinimalScroll(grandpa);
+			undoMinimalScroll(target);
 			// If the parent element is somewhere else we move the form to that status
-			if (formw.parentElement != grandpa) {
-				containerw.style.display = "none";
-				grandpa.appendChild(formw);
-				// Scroll into the element if required
-				scrollIfNeeded(grandpa);
-			// If we clicked on the same status we make the form hide
-			} else {
-				containerw.appendChild(formw);
-			}
-			// Also if textarea is not empty (due composing or replying) we must blindly press on the overwrite button
-			if (document.querySelector(".reply-indicator") || textarea.value != "") {
-				wait(".confirmation-modal__action-bar");
+			if (formw.parentElement != target) {
+				destiny = target;
+				if (document.querySelector(".reply-indicator") || textarea.value != "") {
+					wait(".confirmation-modal__action-bar");
+				} else {
+					containerw.style.display = "none";
+					destiny.appendChild(formw);
+					// Scroll into the element if required
+					scrollIfNeeded(destiny);
+				}
 			}
 			break;
 		// Everytime we press the TOOT! button we collapse the composer back to the main container
@@ -229,7 +232,12 @@ async function wait(element) {
 			document.getElementsByClassName("dropdown-menu__arrow")[0].style.display = "none";
 			break;
 		case ".confirmation-modal__action-bar":
-			document.getElementsByClassName("confirmation-modal__action-bar")[0].children[1].click();
+			document.getElementsByClassName("confirmation-modal__action-bar")[0].children[1].addEventListener('click', function() {
+				containerw.style.display = "none";
+				destiny.appendChild(formw);
+				// Scroll into the element if required
+				scrollIfNeeded(destiny);
+			});
 			break;
 	}
 }
