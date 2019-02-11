@@ -164,13 +164,13 @@ function checkkeydown(event) {
 			destiny = event.target;
 			clase = event.target.className;
 			// We pressed the R (reply shorcut). If the targetted element is a status we append the composer below that and scroll to prevent streaming timelines from overruning our focus
-			if (clase.includes("status__wrapper") || (clase == "focusable" && destiny.firstChild.className == "detailed-status")) {
+			if (clase.includes("status")) {
 				// Also if textarea is not empty (due composing or replying) we must wait for user interaction
 				writer = "";
 				if (document.querySelector("." + replyname.replace(/ /g, "."))) {
 					writer = document.getElementsByClassName(replyname)[0].href;
 				}
-				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.value != "") {
+				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.innerHTML != "") {
 					wait(".confirmation-modal__action-bar");
 				} else {
 					containerw.style.display = "none";
@@ -195,7 +195,7 @@ function checkkeyup(event) {
 			break;
 		case 77:
 			// We pressed the M (mention shorcut). If the targetted element is one containing a remote user we open the composer container with it's name/s
-			if (clase.includes("status__wrapper") || clase.includes("notification-favourite") || clase.includes("notification-reblog") || (clase == "focusable" && target.firstChild.className == "detailed-status")) {
+			if (clase.includes("status__wrapper") || clase.includes("notification-favourite") || clase.includes("notification-reblog")) {
 				opencontainer(containerw, iconw);
 			}
 			break;
@@ -205,6 +205,7 @@ function checkkeyup(event) {
 			if (document.getElementsByClassName(replycancel).length > 0) {
 				document.getElementsByClassName(replycancel)[0].firstChild.click();
 			}
+			textarea.innerHTML = "";
 			containerw.appendChild(formw);
 			containerw.style.display = "none";
 			document.body.focus();
@@ -235,7 +236,7 @@ function checkclick(event) {
 				if (document.querySelector("." + replyname.replace(/ /g, "."))) {
 					writer = document.getElementsByClassName(replyname)[0].href;
 				}
-				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.value != "") {
+				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.innerHTML != "") {
 					wait(".confirmation-modal__action-bar");
 				} else {
 					containerw.style.display = "none";
