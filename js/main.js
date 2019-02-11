@@ -164,7 +164,7 @@ function checkkeydown(event) {
 			destiny = event.target;
 			clase = event.target.className;
 			// We pressed the R (reply shorcut). If the targetted element is a status we append the composer below that and scroll to prevent streaming timelines from overruning our focus
-			if (clase.includes("status")) {
+			if (clase.includes("status") || (clase.includes("focusable") && destiny.firstChild.firstChild.className == "detailed-status")) {
 				// Also if textarea is not empty (due composing or replying) we must wait for user interaction
 				writer = "";
 				if (document.querySelector("." + replyname.replace(/ /g, "."))) {
