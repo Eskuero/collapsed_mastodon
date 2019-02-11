@@ -1,62 +1,98 @@
 // Retrieve the current list of avalaible domains
-chrome.storage.local.get("domains", function(data) {
+chrome.storage.local.get(["domains", "pldomains"], function(data) {
 	// Keep a fallback list around in case no setting is found
 	domains = "mastodon.social,mstdn.io,niu.moe,mastodon.art";
+	pldomains = "kawen.space,pleroma.soykaf.com";
 	if (data.domains) {
 		domains = data.domains;
 	}
+	if (data.pldomains) {
+		pldomains = data.pldomains;
+	}
 	// Create an array out of the original list splitting by commas
-	array = domains.replace(/ /g, "").split(",");
-	for (i = 0; i < array.length; i++) {
-		// If we found a match we wait for the drawer header to appear, as we do most of the work there.
-		if (document.location.toString().includes(array[i])) {
-			wait(".drawer__header");
-			break;
-		}
+	domains = domains.replace(/ /g, "").split(",");
+	pldomains = pldomains.replace(/ /g, "").split(",");
+	// If current domain is inside the array we wait for the interface to be loaded
+	domain = document.location.toString().split("/")[2]
+	if (domains.includes(domain)) {
+		wait(".drawer__header");
+	} else if (pldomains.includes(domain)) {
+		wait(".drawer--header");
 	}
 });
 
 // Once DOM is loaded we create any required HTML elements, inject custom CSS and register for events
-function work() {
+function work(version) {
 	// Create the base stylesheet
 	sheet = document.createElement('style');
 	// Print the classes inside the element
-	style = document.createTextNode('.drawer__header { flex-direction: column } .drawer__header > * { padding: 0 } .drawer__header > *:hover { cursor: pointer } .drawer__header > * > * { padding: 0.9em 0.6em 0.8em } .drawer .drawer__inner { display: none } .search-results { display: none; overflow-y: scroll; position: relative; flex-wrap: wrap } .search { position: absolute; width: 25em } .composerdiv { width: 30em } .composerdiv, .searchdiv { display: none; position: absolute; background: inherit } .drawer { width: auto; min-width: 0; padding-left: 0px !important; flex: 0 0 auto } .reply-indicator { display: none } .search-results__header { flex: 0 1 100% } .search-results__section { width: 50% }');
+	if (version == "mastodon") {
+		style = document.createTextNode('.drawer__header { flex-direction: column } .drawer__header > * { padding: 0 } .drawer__header > *:hover { cursor: pointer } .drawer__header > * > * { padding: 0.9em 0.6em 0.8em } .drawer .drawer__inner { display: none } .search-results { display: none; position: relative; flex-wrap: wrap } .search { position: absolute; width: 25em } .composerdiv { width: 30em } .composerdiv, .searchdiv { display: none; position: absolute; background: inherit } .drawer { width: auto; min-width: 0; padding-left: 0px !important; flex: 0 0 auto } .reply-indicator { display: none } .search-results__header { flex: 0 1 100% } .search-results__section { width: 50% }');
+	} else if (version == "pleroma") {
+		style = document.createTextNode('.drawer--header { flex-direction: column } .drawer--header > * { padding: 0 } .drawer--header > *:hover { cursor: pointer } .drawer--header > * > * { padding: 0.9em 0.6em 0.8em } .drawer.mbstobon { min-width: 3.5em; max-width: 0 } .drawer .drawer__inner { display: none } .drawer--results { display: none; overflow-y: scroll; width: 60em; height: 30em; position: relative; flex-wrap: wrap } .drawer--search { position: absolute; width: 25em } .composerdiv { width: 30em } .composerdiv, .searchdiv { display: none; position: absolute; background: inherit } .drawer { padding-left: 0px !important } .composer--reply { display: none } .drawer--results > header { flex: 0 1 100% } .drawer--results > section { width: 50% }');
+	}
 	sheet.appendChild(style);
-	// Retrieve current setting of the autoincreasing timelines
-	chrome.storage.local.get("bigtl", function(data) {
-		enable = "true";
-		if (data.bigtl) {
-			enable = data.bigtl;
-		}
-		// Only disable it if we especifically changed the preference
-		if (enable == "false") {
-			style = document.createTextNode('.column { flex: 0 0 auto }');
-		} else {
-			style = document.createTextNode('.column { flex: 1 1 auto }');
-		}
-		sheet.appendChild(style);
-	});
+	if (version == "mastodon") {
+		// Retrieve current setting of the autoincreasing timelines
+		chrome.storage.local.get("bigtl", function(data) {
+			enable = "true";
+			if (data.bigtl) {
+				enable = data.bigtl;
+			}
+			// Only disable it if we especifically changed the preference
+			if (enable == "false") {
+				style = document.createTextNode('.column { flex: 0 0 auto }');
+			} else {
+				style = document.createTextNode('.column { flex: 1 1 auto }');
+			}
+			sheet.appendChild(style);
+		});
+	}
 	// Add the the stylesheet to the head of the webpage
 	document.getElementsByTagName('head')[0].appendChild(sheet);
 
 	// Some general elements to refer them just once rather than retrieving everytime
-	header = document.getElementsByClassName("drawer__header")[0];
-	textarea = document.getElementsByClassName("autosuggest-textarea__textarea")[0];
-	forms = document.getElementsByClassName("search")[0];
-	formd = document.getElementsByClassName("search-results")[0];
-	inputs = document.getElementsByClassName("search__input")[0];
-	formw = document.getElementsByClassName("compose-form")[0];
-	iconm = document.getElementsByClassName("fa fa-fw fa-ellipsis-v")[0];
-	send = document.getElementsByClassName("button button--block")[0];
-	user = document.getElementsByClassName("navigation-bar__profile-account")[0].parentElement.href;
+	if (version == "mastodon") {
+		header = document.getElementsByClassName("drawer__header")[0];
+		textarea = document.getElementsByClassName("autosuggest-textarea__textarea")[0];
+		forms = document.getElementsByClassName("search")[0];
+		formd = document.getElementsByClassName("search-results")[0];
+		inputs = document.getElementsByClassName("search__input")[0];
+		formw = document.getElementsByClassName("compose-form")[0];
+		iconm = document.getElementsByClassName("fa fa-fw fa-ellipsis-v")[0];
+		send = document.getElementsByClassName("button button--block")[0];
+		user = document.getElementsByClassName("navigation-bar__profile-account")[0].parentElement.href;
+		replyname = "reply-indicator__display-name";
+		replyindicator = "reply-indicator";
+		replycancel = "reply-indicator__cancel";
+		closesearch = "fa fa-times-circle active";
+	} else if (version == "pleroma") {
+		header = document.getElementsByClassName("drawer--header")[0];
+		textarea = document.getElementsByClassName("textarea")[0];
+		forms = document.getElementsByClassName("drawer--search")[0];
+		formd = document.getElementsByClassName("drawer--results")[0];
+		inputs = forms.firstChild.children[1];
+		formw = document.getElementsByClassName("composer")[0];
+		send = document.getElementsByClassName("button primary")[0];
+		user = document.getElementsByClassName("permalink acct")[0].href;
+		replyname = "permalink account small";
+		replyindicator = "composer--reply";
+		replycancel = "reply-indicator__cancel";
+		closesearch = "icon fa fa-times-circle";
+	}
 
 	// Create a new element on the menu for the search box
 	search = document.createElement('a');
-	search.className = "drawer__tab";
+	if (version == "mastodon") {
+		search.className = "drawer__tab";
+	}
 	// Insert the search icon inside the new entry
 	icons = document.createElement('i');
-	icons.className = "fa fa-fw fa-search";
+	if (version == "mastodon") {
+		icons.className = "fa fa-fw fa-search";
+	} else if (version == "pleroma") {
+		icons.className = "icon fa fa-search";
+	}
 	search.appendChild(icons);
 	header.appendChild(search);
 	// Create the search container
@@ -68,10 +104,16 @@ function work() {
 
 	// Create a new element on the menu for the composer form
 	write = document.createElement('a');
-	write.className = "drawer__tab";
+	if (version == "mastodon") {
+		write.className = "drawer__tab";
+	}
 	// Insert the write icon inside the new entry
 	iconw = document.createElement('i');
-	iconw.className = "fa fa-fw fa-pencil fa-pencil-alt";
+	if (version == "mastodon") {
+		iconw.className = "fa fa-fw fa-pencil fa-pencil-alt";
+	} else if (version == "pleroma") {
+		iconw.className = "icon fa fa-pencil fa-pencil-alt";
+	}
 	write.appendChild(iconw);
 	header.appendChild(write);
 	// Create the composer container
@@ -80,12 +122,14 @@ function work() {
 	containerw.appendChild(formw);
 	document.body.appendChild(containerw);
 
-	// Create a new element on the menu for the more options dropdown
-	more = document.createElement('a');
-	more.className = "drawer__tab";
-	// Insert the more icon inside the new entry.
-	more.appendChild(iconm);
-	header.appendChild(more);
+	if (version == "mastodon") {
+		// Create a new element on the menu for the more options dropdown
+		more = document.createElement('a');
+		more.className = "drawer__tab";
+		// Insert the more icon inside the new entry.
+		more.appendChild(iconm);
+		header.appendChild(more);
+	}
 
 	// Retrieve all the clicks to understand where to act
 	document.body.addEventListener('click', function(event) { checkclick(event); });
@@ -109,7 +153,7 @@ function checkkeydown(event) {
 				// We increase the search box size to fill the top
 				forms.style.width = "100%";
 				// We hook the close button to hide results, bring search box to original size and focus on input
-				document.getElementsByClassName("fa fa-times-circle active")[0].addEventListener('click', function() { 
+				document.getElementsByClassName(closesearch)[0].addEventListener('click', function() {
 					formd.style.display = "none";
 					forms.style.width = "25em";
 					inputs.focus();
@@ -123,10 +167,10 @@ function checkkeydown(event) {
 			if (clase.includes("status__wrapper") || (clase == "focusable" && destiny.firstChild.className == "detailed-status")) {
 				// Also if textarea is not empty (due composing or replying) we must wait for user interaction
 				writer = "";
-				if (document.querySelector(".reply-indicator__display-name")) {
-					writer = document.getElementsByClassName("reply-indicator__display-name")[0].href;
+				if (document.querySelector("." + replyname.replace(/ /g, "."))) {
+					writer = document.getElementsByClassName(replyname)[0].href;
 				}
-				if ((document.querySelector(".reply-indicator") && user != writer) || textarea.value != "") {
+				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.value != "") {
 					wait(".confirmation-modal__action-bar");
 				} else {
 					containerw.style.display = "none";
@@ -158,8 +202,8 @@ function checkkeyup(event) {
 		case 27:
 			// We pressed Esc. This way we have a quick way of navigating the page
 			undoMinimalScroll(send);
-			if (document.getElementsByClassName("reply-indicator__cancel").length > 0) {
-				document.getElementsByClassName("reply-indicator__cancel")[0].firstChild.click();
+			if (document.getElementsByClassName(replycancel).length > 0) {
+				document.getElementsByClassName(replycancel)[0].firstChild.click();
 			}
 			containerw.appendChild(formw);
 			containerw.style.display = "none";
@@ -188,10 +232,10 @@ function checkclick(event) {
 			if (formw.parentElement != target) {
 				destiny = target;
 				writer = "";
-				if (document.querySelector(".reply-indicator__display-name")) {
-					writer = document.getElementsByClassName("reply-indicator__display-name")[0].href;
+				if (document.querySelector("." + replyname.replace(/ /g, "."))) {
+					writer = document.getElementsByClassName(replyname)[0].href;
 				}
-				if ((document.querySelector(".reply-indicator") && user != writer) || textarea.value != "") {
+				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.value != "") {
 					wait(".confirmation-modal__action-bar");
 				} else {
 					containerw.style.display = "none";
@@ -203,16 +247,19 @@ function checkclick(event) {
 			break;
 		// Everytime we press the TOOT! button we collapse the composer back to the main container
 		case "button button--block":
+		case "button primary":
 			undoMinimalScroll(target);
 			containerw.appendChild(formw);
 			containerw.style.display = "none";
 			break;
 		// Decide if we should show or hide the search box based on it's corrent status
 		case "fa fa-fw fa-search":
+		case "icon fa fa-search":
 			opencontainer(containers, icons);
 			break;
 		// Decide if we should show or hide the main composer based on it's corrent status
 		case "fa fa-fw fa-pencil fa-pencil-alt":
+		case "icon fa fa-pencil fa-pencil-alt":
 			opencontainer(containerw, iconw);
 			break;
 		// Decide what we do with the dropdown
@@ -230,7 +277,11 @@ async function wait(element) {
 	switch (element) {
 		case ".drawer__header":
 			// The header is here so it's time to get work done
-			work();
+			work("mastodon");
+			break;
+		case ".drawer--header":
+			// The same but plemora same
+			work("pleroma");
 			break;
 		case ".dropdown-menu":
 			// If we are targetting the dropdown menu we put it on the proper place by using the position of the header icon menu. We also hide the arrow as it looks very ugly
@@ -313,8 +364,8 @@ function opencontainer(container, icon) {
 				// If the target is the composer we append the textarea back
 				container.appendChild(formw);
 				// If we are opening it we always close previous mentions
-				if (document.getElementsByClassName("reply-indicator__cancel").length > 0) {
-					document.getElementsByClassName("reply-indicator__cancel")[0].firstChild.click();
+				if (document.getElementsByClassName(replycancel).length > 0) {
+					document.getElementsByClassName(replycancel)[0].firstChild.click();
 				}
 				textarea.focus();
 				break;
