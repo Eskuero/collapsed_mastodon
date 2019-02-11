@@ -145,7 +145,7 @@ function checkkeydown(event) {
 		case 13:
 			// If we use the Ctrl+Enter key combo, we are focused on the composer textarea and the send button is not disabled we expect to send the toot and pull back to its container
 			if (event.ctrlKey && document.activeElement == textarea && !send.disabled) {
-				undoMinimalScroll(send);
+				undoMinimalScroll(formw);
 				containerw.appendChild(formw);
 				containerw.style.display = "none";
 			}
@@ -200,7 +200,7 @@ function checkkeyup(event) {
 			break;
 		case 27:
 			// We pressed Esc. This way we have a quick way of navigating the page
-			undoMinimalScroll(send);
+			undoMinimalScroll(formw);
 			if (document.getElementsByClassName(replycancel).length > 0) {
 				document.getElementsByClassName(replycancel)[0].firstChild.click();
 			}
@@ -227,7 +227,6 @@ function checkclick(event) {
 			while (!target.className.includes("focusable")) {
 				target = target.parentElement;
 			}
-			undoMinimalScroll(target);
 			// If the parent element is somewhere else we move the form to that status
 			if (formw.parentElement != target) {
 				destiny = target;
@@ -245,7 +244,7 @@ function checkclick(event) {
 		// Everytime we press the TOOT! button we collapse the composer back to the main container
 		case "button button--block":
 		case "button primary":
-			undoMinimalScroll(target);
+			undoMinimalScroll(formw);
 			containerw.appendChild(formw);
 			containerw.style.display = "none";
 			break;
@@ -304,6 +303,7 @@ async function wait(element) {
 
 function spawncomposerreply(destiny) {
 	containerw.style.display = "none";
+	undoMinimalScroll(formw);
 	// FIXME: For some reason pleroma scroll backs the TL as soon as the composer is appended, so we need to store the previous offset and restore it after spawning the textarea
 	if (hackyscroll) {
 		scrollable = destiny;
