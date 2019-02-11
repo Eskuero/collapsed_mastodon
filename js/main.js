@@ -66,6 +66,7 @@ function work(version) {
 		replyindicator = "reply-indicator";
 		replycancel = "reply-indicator__cancel";
 		closesearch = "fa fa-times-circle active";
+		hackyscroll = false;
 	} else if (version == "pleroma") {
 		header = document.getElementsByClassName("drawer--header")[0];
 		textarea = document.getElementsByClassName("textarea")[0];
@@ -79,6 +80,7 @@ function work(version) {
 		replyindicator = "composer--reply";
 		replycancel = "cancel icon-button inverted";
 		closesearch = "icon fa fa-times-circle";
+		hackyscroll = true;
 	}
 
 	// Create a new element on the menu for the search box
@@ -173,10 +175,7 @@ function checkkeydown(event) {
 				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.innerHTML != "") {
 					wait(".confirmation-modal__action-bar");
 				} else {
-					containerw.style.display = "none";
-					destiny.appendChild(formw);
-					// Scroll into the element if required
-					scrollIfNeeded(destiny);
+					spawncomposerreply(destiny);
 				}
 			}
 			break;
@@ -239,10 +238,7 @@ function checkclick(event) {
 				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.innerHTML != "") {
 					wait(".confirmation-modal__action-bar");
 				} else {
-					containerw.style.display = "none";
-					destiny.appendChild(formw);
-					// Scroll into the element if required
-					scrollIfNeeded(destiny);
+					spawncomposerreply(destiny);
 				}
 			}
 			break;
@@ -294,13 +290,33 @@ async function wait(element) {
 			document.getElementsByClassName("dropdown-menu__arrow")[0].style.display = "none";
 			break;
 		case ".confirmation-modal__action-bar":
-			document.getElementsByClassName("confirmation-modal__action-bar")[0].children[1].addEventListener('click', function() {
-				containerw.style.display = "none";
-				destiny.appendChild(formw);
-				// Scroll into the element if required
-				scrollIfNeeded(destiny);
-			});
+			document.getElementsByClassName("confirmation-modal__action-bar")[0].children[1].addEventListener('click', function() {spawncomposerreply(destiny)});
 			break;
+		case "textarea":
+			while (scrollable.scrollTop == previousscroll) {
+				await new Promise(r => setTimeout(r, 100));
+			}
+			scrollable.scrollTop = previousscroll;
+			scrollIfNeeded(destiny);
+			break;
+	}
+}
+
+function spawncomposerreply(destiny) {
+	containerw.style.display = "none";
+	// FIXME: For some reason pleroma scroll backs the TL as soon as the composer is appended, so we need to store the previous offset and restore it after spawning the textarea
+	if (hackyscroll) {
+		scrollable = destiny;
+		while (!scrollable.className.includes("scrollable")) {
+			scrollable = scrollable.parentElement;
+		}
+		previousscroll = scrollable.scrollTop;
+		destiny.appendChild(formw);
+		wait("textarea");
+	} else {
+		destiny.appendChild(formw);
+		// Scroll into the element if required
+		scrollIfNeeded(destiny);
 	}
 }
 
