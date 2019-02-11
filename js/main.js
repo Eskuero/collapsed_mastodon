@@ -77,7 +77,7 @@ function work(version) {
 		user = document.getElementsByClassName("permalink acct")[0].href;
 		replyname = "permalink account small";
 		replyindicator = "composer--reply";
-		replycancel = "reply-indicator__cancel";
+		replycancel = "cancel icon-button inverted";
 		closesearch = "icon fa fa-times-circle";
 	}
 
