@@ -175,7 +175,7 @@ function checkkeydown(event) {
 				if (document.querySelector("." + replyname.replace(/ /g, "."))) {
 					writer = document.getElementsByClassName(replyname)[0].href;
 				}
-				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.innerHTML != "") {
+				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.value != "") {
 					wait(".confirmation-modal__action-bar");
 				} else {
 					spawncomposerreply(destiny);
@@ -243,7 +243,7 @@ function checkclick(event) {
 				if (document.querySelector("." + replyname.replace(/ /g, "."))) {
 					writer = document.getElementsByClassName(replyname)[0].href;
 				}
-				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.innerHTML != "") {
+				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.value != "") {
 					wait(".confirmation-modal__action-bar");
 				} else {
 					spawncomposerreply(destiny);
