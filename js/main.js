@@ -83,6 +83,9 @@ function work(version) {
 		hackyscroll = true;
 	}
 
+	// Container for video and image expanding
+	modalcontainer = document.getElementsByClassName("modal-root")[0]
+
 	// Create a new element on the menu for the search box
 	search = document.createElement('a');
 	if (version == "mastodon") {
@@ -199,6 +202,10 @@ function checkkeyup(event) {
 			}
 			break;
 		case 27:
+			// If we are viewing video or images in expanded mode we should not close anything on Esc
+			if (modalcontainer.style.opacity == 1) {
+				break;
+			}
 			// We pressed Esc. This way we have a quick way of navigating the page
 			undoMinimalScroll(formw);
 			if (document.getElementsByClassName(replycancel).length > 0) {
