@@ -59,7 +59,7 @@ function work(version) {
 		formd = document.getElementsByClassName("search-results")[0];
 		inputs = document.getElementsByClassName("search__input")[0];
 		formw = document.getElementsByClassName("compose-form")[0];
-		iconm = document.getElementsByClassName("fa fa-fw fa-ellipsis-v")[0];
+		iconm = document.getElementsByClassName("compose__action-bar-dropdown")[0].firstChild.firstChild.firstChild;
 		send = document.getElementsByClassName("button button--block")[0];
 		user = document.getElementsByClassName("navigation-bar__profile-account")[0].parentElement.href;
 		replyname = "reply-indicator__display-name";
@@ -268,7 +268,7 @@ function checkclick(event) {
 			opencontainer(containerw, iconw);
 			break;
 		// Decide what we do with the dropdown
-		case "fa fa-fw fa-ellipsis-v":
+		case iconm.className:
 			wait(".dropdown-menu");
 			break;
 	}
