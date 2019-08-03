@@ -66,6 +66,9 @@ function work(version) {
 		replycancel = "reply-indicator__cancel";
 		closesearch = "fa fa-times-circle active";
 		hackyscroll = false;
+		enableredraft = true;
+		// Menu entry that corresponds to redraft on each status type
+		redraftindex = {"status-direct": 5, "status-public": 8, "status-unlisted": 8, "status-private": 6};
 	} else if (version == "pleroma") {
 		header = document.getElementsByClassName("drawer--header")[0];
 		forms = document.getElementsByClassName("drawer--search")[0];
@@ -79,6 +82,7 @@ function work(version) {
 		replycancel = "cancel icon-button inverted";
 		closesearch = "icon fa fa-times-circle";
 		hackyscroll = true;
+		enableredraft = false;
 	}
 
 	// Textarea to write toots
@@ -176,7 +180,7 @@ function checkkeydown(event) {
 					writer = document.getElementsByClassName(replyname)[0].href;
 				}
 				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.value != "") {
-					wait(".confirmation-modal__action-bar");
+					wait(".confirmation-modal__action-bar", 1);
 				} else {
 					spawncomposerreply(destiny);
 				}
@@ -221,6 +225,10 @@ function checkkeyup(event) {
 
 function checkclick(event) {
 	target = event.target;
+	// Clicks on menu items return the <a> element as target, which is empty
+	if (target.className == "" && target.parentElement.className == "dropdown-menu__item") {
+		target = target.parentElement;
+	}
 	switch (target.className) {
 		// If we clicked on the reply button we append the composer below the target toot
 		case "status__action-bar-button icon-button":
@@ -244,7 +252,7 @@ function checkclick(event) {
 					writer = document.getElementsByClassName(replyname)[0].href;
 				}
 				if ((document.querySelector("." + replyindicator) && user != writer) || textarea.value != "") {
-					wait(".confirmation-modal__action-bar");
+					wait(".confirmation-modal__action-bar", 1);
 				} else {
 					spawncomposerreply(destiny);
 				}
@@ -267,14 +275,44 @@ function checkclick(event) {
 		case "icon fa fa-pencil fa-pencil-alt":
 			opencontainer(containerw, iconw);
 			break;
-		// Decide what we do with the dropdown
+		// Decide what we do with the preferences dropdown
 		case iconm.className:
 			wait(".dropdown-menu");
+			break;
+		// Listen to more button to allow redraft
+		case "dropdown-menu__item":
+			// Pleroma's mastofe has no redraft feature
+			if (!enableredraft) {
+				break;
+			}
+			// Get the button that produced the menu, only one at a time can have an ellipsis as child
+			if (document.querySelector("button.icon-button.active > i.fa.fa-ellipsis-h.fa-fw")) {
+				post = document.querySelector("button.icon-button.active > i.fa.fa-ellipsis-h.fa-fw");
+				// Iteratively go up until we find the post we are targetting
+				while (post.className.slice(0,7) != "status ") {
+					post = post.parentElement;
+				}
+				// URL of the user that wrote the post, if it's not our user we stop
+				writer = post.children[1].children[1].href;
+				if (writer != user) {
+					break;
+				}
+				// Type of post (public, unlisted, private, direct).
+				type = post.className.split(" ")[1]
+				//  We only proceed if the index of the menuentry clicked corresponds to the hardcoded index of the redraft entry for each type of post
+				if (redraftindex[type] != target.firstChild.getAttribute("data-index")) {
+					break;
+				}
+				// Only hook the button if the composer is not visible
+				if (containerw.style.display != "block") {
+					wait(".confirmation-modal__action-bar", 2);
+				}
+			}
 			break;
 	}
 }
 
-async function wait(element) {
+async function wait(element, option = 0) {
 	// FIXME: Probably a resource hog, we check every 0,1s if the element is finally alive
 	while (!document.querySelector(element)) {
 		await new Promise(r => setTimeout(r, 100));
@@ -298,7 +336,11 @@ async function wait(element) {
 			document.getElementsByClassName("dropdown-menu__arrow")[0].style.display = "none";
 			break;
 		case ".confirmation-modal__action-bar":
-			document.getElementsByClassName("confirmation-modal__action-bar")[0].children[1].addEventListener('click', function() {spawncomposerreply(destiny)});
+			if (option == 1) {
+				document.getElementsByClassName("confirmation-modal__action-bar")[0].children[1].addEventListener('click', function() {spawncomposerreply(destiny)});
+			} else if (option == 2) {
+				document.getElementsByClassName("confirmation-modal__action-bar")[0].children[1].addEventListener('click', function() {opencontainer(containerw, iconw)});
+			}
 			break;
 		case "textarea":
 			while (scrollable.scrollTop == previousscroll) {
