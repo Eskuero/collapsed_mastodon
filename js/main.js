@@ -54,7 +54,6 @@ function work(version) {
 	// Some general elements to refer them just once rather than retrieving everytime
 	if (version == "mastodon") {
 		header = document.getElementsByClassName("drawer__header")[0];
-		textarea = document.getElementsByClassName("autosuggest-textarea__textarea")[0];
 		forms = document.getElementsByClassName("search")[0];
 		formd = document.getElementsByClassName("search-results")[0];
 		inputs = document.getElementsByClassName("search__input")[0];
@@ -69,7 +68,6 @@ function work(version) {
 		hackyscroll = false;
 	} else if (version == "pleroma") {
 		header = document.getElementsByClassName("drawer--header")[0];
-		textarea = document.getElementsByClassName("textarea")[0];
 		forms = document.getElementsByClassName("drawer--search")[0];
 		formd = document.getElementsByClassName("drawer--results")[0];
 		inputs = forms.firstChild.children[1];
@@ -83,6 +81,8 @@ function work(version) {
 		hackyscroll = true;
 	}
 
+	// Textarea to write toots
+	textarea = document.getElementsByClassName("autosuggest-textarea__textarea")[0];
 	// Container for video and image expanding
 	modalcontainer = document.getElementsByClassName("modal-root")[0]
 
