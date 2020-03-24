@@ -52,9 +52,14 @@ function work(version) {
 	document.getElementsByTagName('head')[0].appendChild(sheet);
 
 	// Some general elements to refer them just once rather than retrieving everytime
+	// Textarea to write toots
+	textarea = document.getElementsByClassName("autosuggest-textarea__textarea")[0];
+	// Search form
+	forms = document.getElementsByClassName("search")[0];
+	// Container for video and image expanding
+	modalcontainer = document.getElementsByClassName("modal-root")[0]
 	if (version == "mastodon") {
 		header = document.getElementsByClassName("drawer__header")[0];
-		forms = document.getElementsByClassName("search")[0];
 		formd = document.getElementsByClassName("search-results")[0];
 		inputs = document.getElementsByClassName("search__input")[0];
 		formw = document.getElementsByClassName("compose-form")[0];
@@ -71,7 +76,6 @@ function work(version) {
 		redraftindex = {"status-direct": 5, "status-public": 8, "status-unlisted": 8, "status-private": 6};
 	} else if (version == "pleroma") {
 		header = document.getElementsByClassName("drawer--header")[0];
-		forms = document.getElementsByClassName("search")[0];
 		formd = document.getElementsByClassName("drawer--results")[0];
 		inputs = forms.firstChild.children[1];
 		formw = document.getElementsByClassName("composer")[0];
@@ -84,11 +88,6 @@ function work(version) {
 		hackyscroll = true;
 		enableredraft = false;
 	}
-
-	// Textarea to write toots
-	textarea = document.getElementsByClassName("autosuggest-textarea__textarea")[0];
-	// Container for video and image expanding
-	modalcontainer = document.getElementsByClassName("modal-root")[0]
 
 	// Create a new element on the menu for the search box
 	search = document.createElement('a');
