@@ -71,7 +71,7 @@ function work(version) {
 		redraftindex = {"status-direct": 5, "status-public": 8, "status-unlisted": 8, "status-private": 6};
 	} else if (version == "pleroma") {
 		header = document.getElementsByClassName("drawer--header")[0];
-		forms = document.getElementsByClassName("drawer--search")[0];
+		forms = document.getElementsByClassName("search")[0];
 		formd = document.getElementsByClassName("drawer--results")[0];
 		inputs = forms.firstChild.children[1];
 		formw = document.getElementsByClassName("composer")[0];
